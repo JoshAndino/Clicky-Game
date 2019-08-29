@@ -11,59 +11,71 @@ class App extends Component {
     matches,
     correctGuesses: 0,
     bestScore: 0,
-    clickedMessage: "Click any of the Game of Thrones Characters"
+    clickedMessage: "Click any of the Game of Thrones Characters",
+    clickedCards: []
   };
 
   setClicked = id => {
-    const newMatches = this.state.matches.map(match =>{
-      if(match.id === id){
-        if(!match.clicked){
-          this.setState(
-            state => ({
-              correctGuesses: state.correctGuesses + 1
-            }),
-            ()=> {
-              console.log(this.state);
-              if(this.state.correctGuesses > this.state.bestScore){
-                this.setState({bestScore: this.state.correctGuesses});
-              }
-            }
-          );
-          match.clicked = true;
+        if(this.state.clickedCards.includes(id)){
+          this.setState({
+            correctGuesses: 0,
+            clickedCards: []
+          }); this.shuffle(matches)
         }else{
           this.setState({
-            matches,
-            correctGuesses: 0
+            correctGuesses: this.state.correctGuesses + 1,
+            clickedCards: [...this.state.clickedCards,id]
           });
+          this.shuffle(matches)
         }
-      }
-      return match;
-    });
-    this.setState({
-      matches: newMatches
-    });
-  };
+      };
+      
+      shuffle =(array) => {
 
-  render(){
+        var currentIndex = array.length;
+        var temporaryValue, randomIndex;
+      
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+          // Pick a remaining element...
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex -= 1;
+      
+          // And swap it with the current element.
+          temporaryValue = array[currentIndex];
+          array[currentIndex] = array[randomIndex];
+          array[randomIndex] = temporaryValue;
+        }
+      
+        return array;
+      
+      };
+    
+
+  render() {
+    console.log(this.state)
     return (
+      <>
       <Wrapper>
         <Title> Game Of Thrones</Title>
         <h3 className ="scoreSummary">{this.state.clickedMessage}</h3>
         <h3 className = "scoreSummary">
-        Correct: {this.state.correctGuesses}{" "}
-        Top Score: {this.state.bestScore}{" "}
+        Correct: {this.state.correctGuesses}
+        Top Score: {this.state.bestScore}
         </h3>
 
         {this.state.matches.map(match =>(
           <MatchCard 
           setClicked={this.setClicked}
           id={match.id}
-          key={match.id + "-matchCard"}
+          key={match.id}
           images={match.image}
           />
-        ))}{" "}
+        ))}
       </Wrapper>
+      </>
     );
-  }
+  };
 }
+
 export default App;
