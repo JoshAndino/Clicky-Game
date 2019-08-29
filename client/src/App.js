@@ -1,91 +1,69 @@
-
-import icons from "./icon.json";
-import Nav from "./componets/nav/nav";
-import IconCard from "./componets/iconHolder/index";
 import React, {Component} from "react";
+import MatchCard from "./Components/MatchCard";
+import Wrapper from "./Components/Wrapper";
+import Title from "./Components/Title";
+import matches from "./icon.json";
 
 
-// Setting the initial state of things
 class App extends Component {
+  // setting this.state.matches to the json array
   state = {
-    icons: [...icons],
-    clicked: [],
-    score: 0,
-    highscore: 0,
-  };
-  
-
-  //sorting icon cards
-  sortIcons = () =>{
-    this.state.icons.sort( (a,b) => {return 0.5 - Math.random()});
+    matches,
+    correctGuesses: 0,
+    bestScore: 0,
+    clickedMessage: "Click any of the Game of Thrones Characters"
   };
 
-  //setting the highscore
-  setHighScore = () => {
-    if(this.state.score > this.state.highscore){
-      this.setState({
-        highscore: this.state.score
-      });
-    }
-  };
-
-  //reset game after lost
-  resetGame = () => {
-    this.setHighScore();
+  setClicked = id => {
+    const newMatches = this.state.matches.map(match =>{
+      if(match.id === id){
+        if(!match.clicked){
+          this.setState(
+            state => ({
+              correctGuesses: state.correctGuesses + 1
+            }),
+            ()=> {
+              console.log(this.state);
+              if(this.state.correctGuesses > this.state.bestScore){
+                this.setState({bestScore: this.state.correctGuesses});
+              }
+            }
+          );
+          match.clicked = true;
+        }else{
+          this.setState({
+            matches,
+            correctGuesses: 0
+          });
+        }
+      }
+      return match;
+    });
     this.setState({
-      clicked : [],
-      score: 0
-    })
+      matches: newMatches
+    });
   };
-  iconClick = (event) => {
-    //const currentIcon = event.icons.id;
-    // check which icon card was clicked
-   // const isClicked = this.state.clicked.indexOf(event) > -1;
 
-   let isChecked = false; 
-   const icons = [...this.state.icons];
-  console.log(isChecked + icons.id)
-
-
-  //  icons.forEach(icon => {
-  //    if(icon.id === event){
-  //      if(isChecked === false){
-  //       isChecked = true;
-  //       icon.clicked = true;
-  //       console.log(icon.clicked + " the new status of click is: " + isChecked)
-  //      }
-  //    }
-  //  })
-   // console.log("this is the card ID: " + event + "the status of click is: " + isClicked)
-    // if same icon card clicked end game
-    // if (isClicked === true) {
-    //   this.sortIcons();
-    //   this.resetGame();
-    // } 
-
-  };
-  //onclick action
   render(){
     return (
-      <div className = 'App'>
-      <Nav 
-      highscore = {this.state.highscore}
-      score = {this.state.score}/>
+      <Wrapper>
+        <Title> Game Of Thrones</Title>
+        <h3 className ="scoreSummary">{this.state.clickedMessage}</h3>
+        <h3 className = "scoreSummary">
+        Correct: {this.state.correctGuesses}{" "}
+        Top Score: {this.state.bestScore}{" "}
+        </h3>
 
-      <div className ='container'>
-      <div className ='row'>
-      {this.state.icons.map(icon =>(
-        <IconCard
-        onClick={this.iconClick(icon.id)}
-        id={icon.id}
-        key={icon.id}
-        image={icon.image}
-        />
-      ))}
-      </div>
-      </div>
-      </div>
-    )
+        {this.state.matches.map(match =>(
+          <MatchCard 
+          setClicked={this.setClicked}
+          id={match.id}
+          key={match.id + "-matchCard"}
+          images={match.image}
+          />
+        ))}{" "}
+      </Wrapper>
+    );
   }
 }
 export default App;
